@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,13 +27,24 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    menu.cpp \
+    game.cpp \
+    choosepuzzle.cpp \
+    mysql_conn.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    menu.h \
+    game.h \
+    choosepuzzle.h \
+    mysql_conn.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    menu.ui \
+    game.ui \
+    choosepuzzle.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
