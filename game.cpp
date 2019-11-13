@@ -217,6 +217,7 @@ void game::modifyData(actDire direction)    // 根据移动方向，操作数据
     QList<QStringList> data;
     QString cmd = QString("Select type From currentGame where x=%1 and y=%2 and type<>'.';").arg(x).arg(y);
     data = this->game_Createdb->selectDataFromDb(cmd);
+
 //    qDebug() << "type:" << data;
     QListIterator<QStringList> itr(data);     //迭代器
     while (itr.hasNext()) {   //加载数据
@@ -241,9 +242,9 @@ void game::modifyData(actDire direction)    // 根据移动方向，操作数据
 
         QString itemm = "";
         QList<QStringList> dataa;
-        QString cmdd = QString("Select type From currentGame where x=%1 and y=%2;").arg(xx).arg(yy);
+        QString cmdd = QString("Select type From currentGame where x=%1 and y=%2 and type<>'.';").arg(xx).arg(yy);
         dataa = this->game_Createdb->selectDataFromDb(cmdd);
-    //    qDebug() << "type:" << data;
+//        qDebug() << "type:" << data;
         QListIterator<QStringList> itrr(dataa);     //迭代器
 
         while (itrr.hasNext()) {   //加载数据

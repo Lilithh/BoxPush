@@ -2,6 +2,7 @@
 #define CHOOSEPUZZLE_H
 
 #include <QWidget>
+#include <QTableWidgetItem>
 #include "mysql_conn.h"
 
 namespace Ui {
@@ -26,8 +27,11 @@ private slots:
     void slot_showing();
     void slot_resetTable();
 
+    void on_tableWidget_itemDoubleClicked(QTableWidgetItem *item);
+
 signals:
     void signal_back();
+    void signal_game();
 
 private:
     Ui::choosePuzzle *ui;
