@@ -4,7 +4,8 @@
 
 
     
-#define maxLine 80                  //推箱子关卡文件每行最大字符数
+#define maxLine 80
+                  //推箱子关卡文件每行最大字符数
 
 //以下需对应修改
 #define fileInName "../charFile/test.txt"        //源文件目录   
@@ -42,7 +43,7 @@ int main(){
                 sqlfile<< "`type` varchar(30) not null," << endl;
                 sqlfile<< "`x` int not null," << endl;
                 sqlfile<< "`y` int not null," << endl;
-                sqlfile<< "primary key (`x`,`y`)" << endl;
+                sqlfile<< "primary key (`x`,`y`,`type`)" << endl;
                 sqlfile<< ");" << endl;
 
                 sqlfile << flush;

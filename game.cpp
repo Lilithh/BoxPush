@@ -11,7 +11,7 @@ game::game(QWidget *parent) : QWidget(parent), ui(new Ui::game)
 {
     ui->setupUi(this);
 
-    this->ui->paint->setFocusPolicy(Qt::StrongFocus);   //设置焦点
+    this->ui->paint->setFocusPolicy(Qt::StrongFocus);   //设置焦点（响应键盘事件）
     this->ui->paint->installEventFilter(this);//注册监视对象。
 
 }
@@ -44,6 +44,23 @@ void game::do_paint()                     //用数据画图
         painter.drawLine(QPointF(j,0),QPointF(j,700));
         painter.drawLine(QPointF(0,j),QPointF(700,j));
     }
+
+    {    //先加载目标区域(再由其他去覆盖)
+        QList<QStringList> data0;
+        QString cmd0 = QString("Select x,y From currentGame where type='.';");
+        data0 = this->game_Createdb->selectDataFromDb(cmd0);
+        QListIterator<QStringList> itr0(data0);     //迭代器
+        while (itr0.hasNext()) {   //加载数据
+            QStringList row0 = itr0.next();
+            int xt=row0.at(0).toInt();
+            int yt=row0.at(1).toInt();
+            QBrush brush(QColor(230, 0, 0, 48));
+            painter.setBrush(brush);
+            painter.drawRect(QRect(xt*35, yt*35, 35,35));
+
+        }
+    }
+
 
     QListIterator<QStringList> itr(tableData);     //声明迭代器
     while (itr.hasNext()) {   //加载数据
@@ -83,20 +100,9 @@ void game::do_paint()                     //用数据画图
             painter.drawEllipse(QPointF(x*35+17.5, y*35+17.5), 15, 15);
         }
 
-        else if (row.at(0)==".") {   //终点
-            QBrush brush(QColor(230, 0, 0, 48));
-            painter.setBrush(brush);
-
-            int x=row.at(1).toInt();
-            int y=row.at(2).toInt();
-            painter.drawRect(QRect(x*35, y*35, 35,35));
-        }
-
     }
 
 
-//    painter.end();
-//    return true;
 }
 
 
@@ -123,10 +129,8 @@ bool game::eventFilter(QObject *watched, QEvent *e)       //(在控件上绘图)
 //    }
 
     if (e->type() == QEvent::KeyPress) {     //捕捉键盘事件
-        qDebug() << "KeyPress here";
                QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
                if (keyEvent->key() == Qt::Key_Up) {
-                   qDebug() << "Key_Up here";
                     on_up_clicked();
                }
                if (keyEvent->key() == Qt::Key_Down) {
@@ -211,7 +215,7 @@ void game::modifyData(actDire direction)    // 根据移动方向，操作数据
 
     QString item = "";
     QList<QStringList> data;
-    QString cmd = QString("Select type From currentGame where x=%1 and y=%2;").arg(x).arg(y);
+    QString cmd = QString("Select type From currentGame where x=%1 and y=%2 and type<>'.';").arg(x).arg(y);
     data = this->game_Createdb->selectDataFromDb(cmd);
 //    qDebug() << "type:" << data;
     QListIterator<QStringList> itr(data);     //迭代器
@@ -250,32 +254,17 @@ void game::modifyData(actDire direction)    // 根据移动方向，操作数据
              people_next=people;
              qDebug() << "箱子前有障碍物";
         }
-        else if (itemm==".") {    //目标区域
-            QString cmd1=QString("delete from currentGame where x=%1 and y=%2;").arg(xx).arg(yy);
-            QString cmd2=QString("UPDATE currentGame set x=%1,y=%2 where x=%3 and y=%4;").arg(xx).arg(yy).arg(x).arg(y);
-            QString cmd3=QString("UPDATE currentGame set x=%1,y=%2 where x=%3 and y=%4;").arg(x).arg(y).arg(x0).arg(y0);
-            if(this->game_Createdb->execCommand(cmd1)) qDebug() << "目标区域删除";
-            if(this->game_Createdb->execCommand(cmd2)) qDebug() << "箱子移动";
-            if(this->game_Createdb->execCommand(cmd3)) qDebug() << "人移动";
-            people=people_next;
-        }
-        else {     //空地
-            QString cmd2=QString("UPDATE currentGame set x=%1,y=%2 where x=%3 and y=%4;").arg(xx).arg(yy).arg(x).arg(y);
-            QString cmd3=QString("UPDATE currentGame set x=%1,y=%2 where x=%3 and y=%4;").arg(x).arg(y).arg(x0).arg(y0);
+        else {     //空地 或 目标区域
+            QString cmd2=QString("UPDATE currentGame set x=%1,y=%2 where x=%3 and y=%4 and type='$';").arg(xx).arg(yy).arg(x).arg(y);
+            QString cmd3=QString("UPDATE currentGame set x=%1,y=%2 where x=%3 and y=%4 and type='@';").arg(x).arg(y).arg(x0).arg(y0);
             if(this->game_Createdb->execCommand(cmd2)) qDebug() << "箱子移动";
             if(this->game_Createdb->execCommand(cmd3)) qDebug() << "人移动";
             people=people_next;
         }
    }
-   else if (item==".") {    //目标区域
-       QString cmd1=QString("delete from currentGame where x=%1 and y=%2;").arg(x).arg(y);
-       QString cmd3=QString("UPDATE currentGame set x=%1,y=%2 where x=%3 and y=%4;").arg(x).arg(y).arg(x0).arg(y0);
-       if(this->game_Createdb->execCommand(cmd1)) qDebug() << "目标区域删除";
-       if(this->game_Createdb->execCommand(cmd3)) qDebug() << "人移动";
-       people=people_next;
-   }
-   else {     //空地
-       QString cmd3=QString("UPDATE currentGame set x=%1,y=%2 where x=%3 and y=%4;").arg(x).arg(y).arg(x0).arg(y0);
+
+   else {     //空地 或 目标区域
+       QString cmd3=QString("UPDATE currentGame set x=%1,y=%2 where x=%3 and y=%4 and type='@';").arg(x).arg(y).arg(x0).arg(y0);
        if(this->game_Createdb->execCommand(cmd3)) qDebug() << "人移动";
        people=people_next;
    }
