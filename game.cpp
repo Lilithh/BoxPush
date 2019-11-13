@@ -11,7 +11,9 @@ game::game(QWidget *parent) : QWidget(parent), ui(new Ui::game)
 {
     ui->setupUi(this);
 
-    this->ui->paint->installEventFilter(this);
+    this->ui->paint->setFocusPolicy(Qt::StrongFocus);   //设置焦点
+    this->ui->paint->installEventFilter(this);//注册监视对象。
+
 }
 
 game::~game()
@@ -112,23 +114,31 @@ void game::slot_showing()    //页面即将显示时 开始初始化
 
 
 
-bool game::eventFilter(QObject *watched, QEvent *e)       //在控件上绘图
+bool game::eventFilter(QObject *watched, QEvent *e)       //(在控件上绘图) 事件捕捉器
 {
-    if(e->type() == QEvent::MouseButtonPress)  {
-        qDebug() << "mouse here";
-         ui->paint->update();
+//    if(e->type() == QEvent::MouseButtonPress)  {
+//        qDebug() << "mouse here";
+//         ui->paint->update();
 //         ui->paint->repaint();
+//    }
 
-//        if(watched == ui->paint)
-//        {
-//            if(e->type() == QEvent::Paint){
-//                do_paint();
-//                return true;
-//            }
-//        }
-//        return QWidget::eventFilter(watched,e);
-
-    }
+    if (e->type() == QEvent::KeyPress) {     //捕捉键盘事件
+        qDebug() << "KeyPress here";
+               QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
+               if (keyEvent->key() == Qt::Key_Up) {
+                   qDebug() << "Key_Up here";
+                    on_up_clicked();
+               }
+               if (keyEvent->key() == Qt::Key_Down) {
+                    on_down_clicked();
+               }
+               if (keyEvent->key() == Qt::Key_Left) {
+                    on_left_clicked();
+               }
+               if (keyEvent->key() == Qt::Key_Right) {
+                    on_right_clicked();
+               }
+           }
 
     if(watched == ui->paint)
     {
@@ -217,12 +227,12 @@ void game::modifyData(actDire direction)    // 根据移动方向，操作数据
         qDebug() << "碰到障碍物";
    }
    else if (item=="$") {    //箱子
-        int xx = people_next.toPoint().x();
-        int yy = people_next.toPoint().y();
+        int xx = x;
+        int yy = y;
         if(direction==up) yy--;
         else if (direction==down) yy++;
         else if (direction==left) xx--;
-        else if (direction==down) xx++;
+        else if (direction==right) xx++;
 //        QPointF box_next = QPointF(xx,yy);
 
         QString itemm = "";
@@ -272,32 +282,21 @@ void game::modifyData(actDire direction)    // 根据移动方向，操作数据
 
    QString cmmd = "Select * From currentGame;";
    tableData = this->game_Createdb->selectDataFromDb(cmmd);   //更新database变量数据
+   update(); //更新图像
 
 
-//    this->ui->paint->installEventFilter(this);  //刷新
 
-//   repaint();
-   update();
-
-
-    switch (direction) {
-    case up:
-        y++;
-        break;
-
-    case down:
-
-        break;
-
-    case left:
-
-        break;
-
-    case right:
-
-        break;
-
-    }
 }
 
 
+
+void game::on_restart_clicked()
+{
+    emit signal_resetTable();
+
+    this->game_Createdb = new mysql_conn;     //数据库重新连接
+    this->game_Createdb->linkMySql();
+    QString cmmd = "Select * From currentGame;";
+    tableData = this->game_Createdb->selectDataFromDb(cmmd);   //更新数据
+    update(); //更新图像
+}

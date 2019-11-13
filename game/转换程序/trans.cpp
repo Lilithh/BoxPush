@@ -4,12 +4,12 @@
 
 
     
-#define maxLine 40                  //推箱子关卡文件每行最大字符数
+#define maxLine 80                  //推箱子关卡文件每行最大字符数
 
 //以下需对应修改
-#define fileInName "../charFile/5.txt"        //源文件目录   
-#define fileOutChName "../sqlFile/5.sql"       //转换后文件目录
-#define gameTable "game5"                   //新数据表名
+#define fileInName "../charFile/test.txt"        //源文件目录   
+#define fileOutChName "../sqlFile/test.sql"       //转换后文件目录
+#define gameTable "test"                   //新数据表名
 #define database "AI_BoxPush"                //mysql数据库名
 
 using namespace std;

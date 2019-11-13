@@ -24,6 +24,7 @@ public:
 private slots:
     void on_back_clicked();
     void slot_showing();
+    void slot_resetTable();
 
 signals:
     void signal_back();
@@ -32,6 +33,9 @@ private:
     Ui::choosePuzzle *ui;
 
     mysql_conn *choose_Createdb;
+    QString CURRTABLE;
+
+    bool isShow;
 };
 
 #endif // CHOOSEPUZZLE_H

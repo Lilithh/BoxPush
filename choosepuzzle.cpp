@@ -7,7 +7,9 @@ choosePuzzle::choosePuzzle(QWidget *parent) : QWidget(parent), ui(new Ui::choose
 {
     ui->setupUi(this);
 
+    CURRTABLE = "";  //未选择具体的关卡前，使用""关卡
 
+    isShow = false;
 
 }
 
@@ -66,7 +68,6 @@ void choosePuzzle::load_data()
     this->choose_Createdb = new mysql_conn;     //在这里打开数据库
     this->choose_Createdb->linkMySql();   //进入时连接数据库
 
-    set_currentTable("");
     QList<QStringList> tableData;
     tableData = this->choose_Createdb->selectDataFromDb("Select * From info");   //调用sql类方法
 
@@ -88,6 +89,10 @@ void choosePuzzle::load_data()
 
 void choosePuzzle::set_currentTable(QString table)
 {
+    if(!isShow) { //本页面未加载时
+        this->choose_Createdb = new mysql_conn;     //打开数据库
+        this->choose_Createdb->linkMySql();   //连接数据库
+    }
         QString currentTable;
 
         if(table==""){
@@ -106,7 +111,9 @@ void choosePuzzle::set_currentTable(QString table)
         if(ok) qDebug() << "game data init ok";
         else qDebug() << "game data init error";
 
-
+        if(!isShow){
+            this->choose_Createdb->closeMysql();    //关闭单独建立的数据库
+        }
 
 }
 
@@ -121,4 +128,10 @@ void choosePuzzle::slot_showing()  //页面即将显示时，做初始化
 {
     init_table();
     load_data();
+    isShow = true;
+}
+
+void choosePuzzle::slot_resetTable()
+{
+    set_currentTable(CURRTABLE);    //用CURRTABLE记录的table写入currentTable（之前本页面选择的关卡被记录。没选过则为""）
 }

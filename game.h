@@ -46,8 +46,11 @@ private slots:
 
     void on_right_clicked();
 
+    void on_restart_clicked();
+
 signals:
     void signal_back();
+    void signal_resetTable();
 
 private:
     Ui::game *ui;

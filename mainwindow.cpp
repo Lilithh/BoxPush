@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QObject::connect(menuWidget,SIGNAL(signal_game()),gameWidget,SLOT(slot_showing()));
     QObject::connect(menuWidget,SIGNAL(signal_choose()),chooseWidget,SLOT(slot_showing()));
 
+    QObject::connect(gameWidget,SIGNAL(signal_resetTable()),chooseWidget,SLOT(slot_resetTable()));
+
 }
 
 
