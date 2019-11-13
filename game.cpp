@@ -231,15 +231,16 @@ void game::modifyData(actDire direction)    // 根据移动方向，操作数据
         dataa = this->game_Createdb->selectDataFromDb(cmdd);
     //    qDebug() << "type:" << data;
         QListIterator<QStringList> itrr(dataa);     //迭代器
+
         while (itrr.hasNext()) {   //加载数据
             QStringList roww = itrr.next();
-            item = roww.at(0);
+            itemm = roww.at(0);
         }
-        if(item=="#" || item=="$"){    //障碍
+        if(itemm=="#" || itemm=="$"){    //障碍
              people_next=people;
              qDebug() << "箱子前有障碍物";
         }
-        else if (item==".") {    //目标区域
+        else if (itemm==".") {    //目标区域
             QString cmd1=QString("delete from currentGame where x=%1 and y=%2;").arg(xx).arg(yy);
             QString cmd2=QString("UPDATE currentGame set x=%1,y=%2 where x=%3 and y=%4;").arg(xx).arg(yy).arg(x).arg(y);
             QString cmd3=QString("UPDATE currentGame set x=%1,y=%2 where x=%3 and y=%4;").arg(x).arg(y).arg(x0).arg(y0);
@@ -269,11 +270,14 @@ void game::modifyData(actDire direction)    // 根据移动方向，操作数据
        people=people_next;
    }
 
+   QString cmmd = "Select * From currentGame;";
+   tableData = this->game_Createdb->selectDataFromDb(cmmd);   //更新database变量数据
+
 
 //    this->ui->paint->installEventFilter(this);  //刷新
 
 //   repaint();
-//   update();
+   update();
 
 
     switch (direction) {
