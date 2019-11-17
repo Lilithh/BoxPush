@@ -118,6 +118,7 @@ void choosePuzzle::set_currentTable(QString table)
 
 void choosePuzzle::on_back_clicked()
 {
+
     isShow = false;
     this->choose_Createdb->closeMysql();    //返回主界面时关闭数据库（否则与其他界面冲突）
     emit signal_back();
