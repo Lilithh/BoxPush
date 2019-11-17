@@ -7,7 +7,9 @@ choosePuzzle::choosePuzzle(QWidget *parent) : QWidget(parent), ui(new Ui::choose
 {
     ui->setupUi(this);
 
+    CURRTABLE = "";  //未选择具体的关卡前，使用""关卡
 
+    isShow = false;
 
 }
 
@@ -66,7 +68,6 @@ void choosePuzzle::load_data()
     this->choose_Createdb = new mysql_conn;     //在这里打开数据库
     this->choose_Createdb->linkMySql();   //进入时连接数据库
 
-    set_currentTable("");
     QList<QStringList> tableData;
     tableData = this->choose_Createdb->selectDataFromDb("Select * From info");   //调用sql类方法
 
@@ -88,30 +89,37 @@ void choosePuzzle::load_data()
 
 void choosePuzzle::set_currentTable(QString table)
 {
-        QString currentTable;
+    if(!isShow) { //本页面未加载时
+        this->choose_Createdb = new mysql_conn;     //打开数据库
+        this->choose_Createdb->linkMySql();   //连接数据库
+    }
 
         if(table==""){
-            currentTable = "game1";
+            CURRTABLE = "game1";
         }
         else {
-            currentTable = table;
+            CURRTABLE = table;
         }
 
 
-        QString cmd = "insert into currentGame select * from "+currentTable+ ";";
+        QString cmd = "insert into currentGame select * from "+CURRTABLE+ ";";    //写入currentgame表
 
         this->choose_Createdb->execCommand("truncate table currentGame;");
         bool ok = this->choose_Createdb->execCommand(cmd);
 
-        if(ok) qDebug() << "game data init ok";
-        else qDebug() << "game data init error";
+        if(ok) qDebug() << "currentGame table init ok";
+        else qDebug() << "currentGame table init error";
 
-
+        if(!isShow){
+            this->choose_Createdb->closeMysql();    //关闭单独建立的数据库
+        }
 
 }
 
 void choosePuzzle::on_back_clicked()
 {
+
+    isShow = false;
     this->choose_Createdb->closeMysql();    //返回主界面时关闭数据库（否则与其他界面冲突）
     emit signal_back();
 
@@ -121,4 +129,21 @@ void choosePuzzle::slot_showing()  //页面即将显示时，做初始化
 {
     init_table();
     load_data();
+    isShow = true;
+}
+
+void choosePuzzle::slot_resetTable()
+{
+    set_currentTable(CURRTABLE);    //用CURRTABLE记录的table写入currentTable（之前本页面选择的关卡被记录。没选过则为""）
+//    qDebug()<<"set_currentTable" << CURRTABLE;
+}
+
+void choosePuzzle::on_tableWidget_itemDoubleClicked(QTableWidgetItem *item)
+{
+    CURRTABLE = this->ui->tableWidget->item(item->row(),0)->text();
+    slot_resetTable(); //重新加载game表
+
+    isShow = false;
+    this->choose_Createdb->closeMysql();    //返回时关闭数据库
+    emit signal_game();   //跳转页面
 }

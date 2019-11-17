@@ -4,12 +4,13 @@
 
 
     
-#define maxLine 40                  //推箱子关卡文件每行最大字符数
+#define maxLine 80
+                  //推箱子关卡文件每行最大字符数
 
 //以下需对应修改
-#define fileInName "../charFile/5.txt"        //源文件目录   
-#define fileOutChName "../sqlFile/5.sql"       //转换后文件目录
-#define gameTable "game5"                   //新数据表名
+#define fileInName "../charFile/90.txt"        //源文件目录   
+#define fileOutChName "../sqlFile/90.sql"       //转换后文件目录
+#define gameTable "game90"                   //新数据表名
 #define database "AI_BoxPush"                //mysql数据库名
 
 using namespace std;
@@ -28,6 +29,7 @@ int main(){
     char buf[maxLine];
     string s;    //每次读取一行 存储
     
+    int block=0,box=0,room=0,space=0;
     int i = 1, j = 1;
     if(charfile.is_open()){   //读取文件打开成功
         while(charfile.good() && !charfile.eof()){   //文件是否打开正确 是否结束
@@ -42,7 +44,7 @@ int main(){
                 sqlfile<< "`type` varchar(30) not null," << endl;
                 sqlfile<< "`x` int not null," << endl;
                 sqlfile<< "`y` int not null," << endl;
-                sqlfile<< "primary key (`x`,`y`)" << endl;
+                sqlfile<< "primary key (`x`,`y`,`type`)" << endl;
                 sqlfile<< ");" << endl;
 
                 sqlfile << flush;
@@ -69,6 +71,7 @@ int main(){
                         case '#' :
                             s2 = '#';
                             cmd = s1 + s2 + s3;
+                            block++;
                             // cout << cmd << endl;
 
                             sqlfile<< cmd << endl;  //写入插入语句
@@ -77,14 +80,30 @@ int main(){
                         case '.' :
                             s2 = '.';
                             cmd = s1 + s2 + s3;
+                            room++;
                             sqlfile<< cmd << endl;  //写入插入语句
                             break;
 
                         case '$':
                             s2 = '$';
                             cmd = s1 + s2 + s3;
+                            box++;
                             sqlfile<< cmd << endl;  //写入插入语句
                             break;
+
+                        case '*':
+
+                            s2 = '.';
+                            cmd = s1 + s2 + s3;
+                            room++;
+                            sqlfile<< cmd << endl;  //写入插入语句
+
+                            s2 = '$';
+                            cmd = s1 + s2 + s3;
+                            box++;
+                            sqlfile<< cmd << endl;  //写入插入语句
+                            break;
+
 
                         case '@':
                             s2 = '@';
@@ -93,7 +112,7 @@ int main(){
                             break;
 
                         case ' ':
-
+                            space++;
                             break;
 
                         default:
@@ -108,7 +127,7 @@ int main(){
 
             }
             //遍历结束
-            sqlfile<< endl <<"insert IGNORE into info (gameTable) values ('"<<gameTable<<"');" << endl;    //新表信息加入info表
+            sqlfile<< endl <<"insert IGNORE into info (gameTable,blockNum,boxNum) values ('"<<gameTable<<"',"<<block<< "," << box <<");" << endl;    //新表信息加入info表
             sqlfile << flush;       //保存文件
 
             sqlfile.close();
